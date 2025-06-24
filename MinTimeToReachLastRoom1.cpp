@@ -31,13 +31,16 @@ int minTimeToReachEnd(vector<vector<int>>& moveTime) {
             int arrivalTime = time + 1;
             int openTime = moveTime[nx][ny];
 
-            // If arrival time is less than the room's open time, we may need to wait.
-            if (arrivalTime < openTime) {
-                int waitTime = openTime - arrivalTime;
-                // Wait until we land on a time of the correct parity for movement
-                if (waitTime % 2 == 1) waitTime++;
-                arrivalTime += waitTime;
-            }
+            // // If arrival time is less than the room's open time, we may need to wait.
+            // if (arrivalTime < openTime) {
+            //     int waitTime = openTime - arrivalTime;
+            //     // Wait until we land on a time of the correct parity for movement
+            //     if (waitTime % 2 == 1) waitTime++;
+            //     arrivalTime += waitTime;
+            // }
+
+            if (x != n - 1 && y != m - 1)
+                arrivalTime += openTime;
 
             if (arrivalTime < minTime[nx][ny]) {
                 minTime[nx][ny] = arrivalTime;
