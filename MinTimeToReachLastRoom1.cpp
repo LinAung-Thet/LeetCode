@@ -8,48 +8,48 @@ using namespace std;
 
 // https://leetcode.com/problems/find-minimum-time-to-reach-last-room-i/description/?envType=problem-list-v2&envId=shortest-path
 
+class State {
+public:
+    int x;
+    int y;
+    int dis;
+    State(int x, int y, int dis) : x(x), y(y), dis(dis) {}
+};
+
 int minTimeToReachEnd(vector<vector<int>>& moveTime) {
+    int inf = 0x3f3f3f3f;
     int n = moveTime.size(), m = moveTime[0].size();
-    vector<vector<int>> minTime(n, vector<int>(m, INT_MAX));
-    priority_queue<tuple<int, int, int>, vector<tuple<int, int, int>>, greater<>> pq;
+    vector<vector<int>> d(n, vector<int>(m, inf));
+    vector<vector<int>> v(n, vector<int>(m, 0));
 
-    minTime[0][0] = 0;
-    pq.emplace(0, 0, 0); // (time, x, y)
+    int dirs[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    d[0][0] = 0;
 
-    vector<pair<int, int>> directions = {{1,0}, {-1,0}, {0,1}, {0,-1}};
+    auto cmp = [](const State& a, const State& b) { return a.dis > b.dis; };
 
-    while (!pq.empty()) {
-        auto [time, x, y] = pq.top(); pq.pop();
-        if (x == n - 1 && y == m - 1) return time;
+    priority_queue<State, vector<State>, decltype(cmp)> q(cmp);
+    q.push(State(0, 0, 0));
 
-        if (time > minTime[x][y]) continue;
+    while (!q.empty()) {
+        State s = q.top();
+        q.pop();
+        if (v[s.x][s.y]) continue;
+        v[s.x][s.y] = 1;
 
-        for (auto [dx, dy] : directions) {
-            int nx = x + dx, ny = y + dy;
+        for (int i = 0; i < 4; i++) {
+            int nx = s.x + dirs[i][0];
+            int ny = s.y + dirs[i][1];
             if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
 
-            int arrivalTime = time + 1;
-            int openTime = moveTime[nx][ny];
-
-            // // If arrival time is less than the room's open time, we may need to wait.
-            // if (arrivalTime < openTime) {
-            //     int waitTime = openTime - arrivalTime;
-            //     // Wait until we land on a time of the correct parity for movement
-            //     if (waitTime % 2 == 1) waitTime++;
-            //     arrivalTime += waitTime;
-            // }
-
-            if (x != n - 1 && y != m - 1)
-                arrivalTime += openTime;
-
-            if (arrivalTime < minTime[nx][ny]) {
-                minTime[nx][ny] = arrivalTime;
-                pq.emplace(arrivalTime, nx, ny);
+            int dist = max(d[s.x][s.y], moveTime[nx][ny]) + 1;
+            if (d[nx][ny] > dist) {
+                d[nx][ny] = dist;
+                q.push(State(nx, ny, dist));
             }
         }
     }
 
-    return -1;
+    return d[n - 1][m - 1];
 }
 
 int main() {
@@ -61,6 +61,9 @@ int main() {
 
     vector<vector<int>> test3 = {{0,1},{1,2}};
     cout << "Test 3 Output: " << minTimeToReachEnd(test3) << " (Expected: 3)" << endl;
+
+    vector<vector<int>> test4 = {{17,56},{97,80}};
+    cout << "Test 4 Output: " << minTimeToReachEnd(test4) << " (Expected: 81)" << endl;
 
     return 0;
 }
