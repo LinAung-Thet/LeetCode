@@ -33,6 +33,10 @@ int minTimeToReachEnd(vector<vector<int>>& moveTime) {
     while (!pq.empty()) {
         State s = pq.top(); pq.pop();
         if (visited[s.x][s.y]) continue;
+
+        if (s.x == n - 1 && s.y == m - 1) {
+            break;
+        }
         visited[s.x][s.y] = true;
 
         for(auto [dx, dy] : dirs) {
